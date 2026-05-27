@@ -1,25 +1,36 @@
-import { Wrench } from "@phosphor-icons/react";
+import { Outlet, Link } from "react-router-dom";
+import { Users, Car, Wrench, DesktopTower } from "@phosphor-icons/react";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center border-t-4 border-blue-600">
+    <div className="flex h-screen bg-gray-100 font-sans">
+      {/* Menu Lateral (Sidebar) */}
+      <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
+        <div className="p-6 border-b border-slate-700 flex items-center gap-3">
+          <Wrench size={32} weight="duotone" className="text-blue-400" />
+          <h1 className="text-xl font-bold tracking-wider">Oficina<span className="text-blue-400">Pro</span></h1>
+        </div>
         
-        <Wrench size={56} className="text-blue-600 mx-auto mb-4" weight="duotone" />
-        
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Oficina Mecânica
-        </h1>
-        
-        <p className="text-gray-500 mb-8">
-          Gerenciamento completo de clientes, veículos e ordens de serviço.
-        </p>
-        
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded transition duration-200 w-full shadow-md">
-          Acessar Painel
-        </button>
+        <nav className="flex-1 p-4 space-y-2">
+          <Link to="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <DesktopTower size={24} />
+            <span>Dashboard</span>
+          </Link>
+          <Link to="/clientes" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <Users size={24} />
+            <span>Clientes</span>
+          </Link>
+          <Link to="/veiculos" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <Car size={24} />
+            <span>Veículos</span>
+          </Link>
+        </nav>
+      </aside>
 
-      </div>
+      {/* Área Central onde o conteúdo muda */}
+      <main className="flex-1 overflow-y-auto p-8">
+        <Outlet /> {/* Aqui o React injeta a tela de Clientes, Veiculos, etc */}
+      </main>
     </div>
   );
 }
