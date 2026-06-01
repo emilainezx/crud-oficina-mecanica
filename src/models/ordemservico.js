@@ -1,15 +1,10 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class OrdemServico extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
+      // Uma OS sempre pertence a um Veículo e a um Funcionário responsável
       OrdemServico.belongsTo(models.Veiculo, { foreignKey: 'veiculo_id', as: 'veiculo' });
       OrdemServico.belongsTo(models.Funcionario, { foreignKey: 'funcionario_id', as: 'funcionario' });
     }

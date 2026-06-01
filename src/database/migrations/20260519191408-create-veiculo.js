@@ -10,7 +10,14 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       cliente_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Clientes', // Nome da tabela
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE' // Se o cliente for deletado, os veículos dele também são
       },
       marca: {
         type: Sequelize.STRING

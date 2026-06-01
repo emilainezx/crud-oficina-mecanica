@@ -1,16 +1,14 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Funcionario extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Um Funcionário atende/tem muitas Ordens de Serviço
+      Funcionario.hasMany(models.OrdemServico, {
+        foreignKey: 'funcionario_id',
+        as: 'ordens_servico'
+      });
     }
   }
   Funcionario.init({

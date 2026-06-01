@@ -4,9 +4,7 @@ const routes = require("./routes");
 
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:5173"
-}));
+app.use(cors()); // Libera o front-end Vite para buscar os dados!
 app.use(express.json());
 app.use(routes);
 

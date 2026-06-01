@@ -10,10 +10,24 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       veiculo_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Veiculos',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       funcionario_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Funcionarios',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT' // Impede que um funcionário com OS vinculada seja deletado sem querer
       },
       status: {
         type: Sequelize.STRING

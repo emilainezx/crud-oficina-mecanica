@@ -3,14 +3,14 @@ const { OrdemServico, Veiculo, Funcionario } = require("../models");
 class OrdemServicoController {
   async criar(req, res) {
     try {
-      const { veiculo_id, funcionario_id, status, valor_total } = req.body;
+      // 1. Adiciona as datas aqui para o back-end receber do front-end
+      const { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total } = req.body;
 
       if (!veiculo_id || !funcionario_id || !status || !valor_total) {
-        return res.status(400).json({ error: "Preencha todos os campos." });
+        return res.status(400).json({ error: "Preencha todos os campos obrigatórios." });
       }
 
       const veiculoExistente = await Veiculo.findByPk(veiculo_id);
-
       const funcionarioExistente = await Funcionario.findByPk(funcionario_id);
 
       if (!veiculoExistente) {
@@ -21,10 +21,13 @@ class OrdemServicoController {
         return res.status(404).json({ error: "Funcionário não encontrado." });
       }
 
+      // 2. Repassa as datas para o banco salvar no Supabase
       const novaOrdemServico = await OrdemServico.create({
         veiculo_id,
         funcionario_id,
         status,
+        data_abertura, 
+        data_conclusao,
         valor_total,
       });
 
@@ -75,10 +78,13 @@ class OrdemServicoController {
   async atualizar(req, res) {
     try {
       const { id } = req.params;
-      const { veiculo_id, funcionario_id, status, valor_total } = req.body;
+      
+      // 3. Adicionada as datas aqui também no momento da edição
+      const { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total } = req.body;
 
+      // 4. Repassa as datas para o update no banco
       await OrdemServico.update(
-        { veiculo_id, funcionario_id, status, valor_total },
+        { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total },
         { where: { id } },
       );
       res
@@ -88,6 +94,7 @@ class OrdemServicoController {
       res.status(500).json({ error: "Erro ao atualizar ordem de serviço." });
     }
   }
+
   async deletar(req, res) {
     try {
       const { id } = req.params;
