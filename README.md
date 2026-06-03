@@ -114,12 +114,12 @@ http://localhost:5173
 
 | Funcionalidade | Print da Interface | Dados no Supabase |
 | :--- | :---: | :---: |
-| **Dashboard** | ![Dashboard](assets/Dashboard.png) | |
-| **Clientes** | ![Clientes](assets/Clientes.png) | ![Clientes Supabase](assets/Clientes_sup.png) |
-| **Veículos** | ![Veículos](assets/Veículos.png) | ![Veículos Supabase](assets/Veículos_sup.png) |
-| **Funcionários** | ![Funcionários](assets/Funcionários.png) | ![Funcionários Supabase](assets/Funcionários_sup.png) |
-| **Peças/Serviços** | ![Peças e Serviços](assets/Peças_Serviços.png) | ![Peças e Serviços Supabase](assets/Peças_Serviços_sup.png) |
-| **Ordens de Serviço** | ![Ordens de Serviço](assets/Ordens_de_Serviço.png) | ![Ordens de Serviço Supabase](assets/Ordens_de_Serviço_sup.png) |
+| **Dashboard** | ![Dashboard](backend/assets/Dashboard.png) | |
+| **Clientes** | ![Clientes](backend/assets/Clientes.png) | ![Clientes Supabase](backend/assets/Clientes_sup.png) |
+| **Veículos** | ![Veículos](backend/assets/Veículos.png) | ![Veículos Supabase](backend/assets/Veículos_sup.png) |
+| **Funcionários** | ![Funcionários](backend/assets/Funcionários.png) | ![Funcionários Supabase](backend/assets/Funcionários_sup.png) |
+| **Peças/Serviços** | ![Peças e Serviços](backend/assets/Peças_Serviços.png) | ![Peças e Serviços Supabase](backend/assets/Peças_Serviços_sup.png) |
+| **Ordens de Serviço** | ![Ordens de Serviço](backend/assets/Ordens_de_Serviço.png) | ![Ordens de Serviço Supabase](backend/assets/Ordens_de_Serviço_sup.png) |
 ---
 
 ## ✨ Funcionalidades
