@@ -10,8 +10,6 @@
 
 <br>
 
-![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
-
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
@@ -49,7 +47,7 @@ Com o projeto criado no Supabase:
 2. No submenu de configurações, clique em **Database**.
 3. Role a página até a seção **Connection parameters** (certifique-se de que a aba *URI* ou *Parameters* esteja selecionada).
 4. Lá você encontrará as informações para preencher seu `.env` local:
-   - **Host:** Algo como `db.xxxxx.supabase.co`
+   - **Host:** `db.xxxxx.supabase.co`
    - **Port:** `5432`
    - **User:** `postgres`
 
