@@ -49,10 +49,9 @@ Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizarem
 2. Crie uma conta com seu GitHub e faça login.
 3. No painel, clique no botão verde **"New Project"** e escolha sua organização.
 4. Preencha os dados do projeto:
-   - **Name:** `OficinaPro-DB` (ou qualquer nome de sua preferência).
-   - **Database Password:** `Oficina@2026` (ou qualquer senha forte de sua preferência). 
-   **⚠️ ANOTE ESSA SENHA, VOCÊ VAI PRECISAR DELA NO ARQUIVO .ENV!**
-   - **Region:** `South America (São Paulo)` (Para ficar mais rápido).
+   - **Name:** `OficinaPro-DB` 
+   - **Database Password:** `Oficina@2026` 
+   - **Region:** `South America (São Paulo)` 
 5. Finalize selecionando **Create new project**.
 6. Selecione o botão verde **Connect** na barra superior.
 7. Selecione a opção **Direct Connection string**, em **Connection Method**, selecione **Session pooler**.
@@ -64,7 +63,7 @@ Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizarem
 1. Dentro da pasta **backend**, crie um arquivo (na raiz da pasta) chamado **.env**, ou renomeie o **.env.example** para **.env**.
 2. Na tela principal do **Supabase**, abaixo de **OficinaPro-DB**, terá um **link**, com um **botão Copy**, selecione-o.
 3. Copie **Project URL** e **Publishable key**.
-4. Substitua no arquivo `.env` os dados copiados: **host**, **sua senha**, **user**, **Project URL** e **Publishable key**
+4. Substitua no arquivo `.env` os dados copiados nos locais comentados: **host**, **sua senha**, **user**, **Project URL** e **Publishable key**
 
 ```Bash
 DB_USER=postgres.uyujvcixprpjdcakltsb #Seu user
