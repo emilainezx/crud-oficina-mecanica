@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { listarVeiculos, criarVeiculo, atualizarVeiculo, deletarVeiculo } from '../services/veiculoService.js'
 import { listarClientes } from '../services/clienteService.js'
 import { PhCar, PhPencil, PhTrash, PhX } from "@phosphor-icons/vue"
@@ -8,6 +8,9 @@ const veiculos = ref([])
 const clientes = ref([])
 const isModalOpen = ref(false)
 const idEdicao = ref(null)
+
+// Define o ano máximo como o ano que vem
+const anoMaximo = computed(() => new Date().getFullYear() + 1);
 
 const formData = ref({
   cliente_id: "",
@@ -49,6 +52,23 @@ function abrirModalEdicao(veiculo) {
   idEdicao.value = veiculo.id
   isModalOpen.value = true
 }
+
+// ----------------- MÁSCARA DA PLACA -----------------
+function mascaraPlaca(event) {
+  let val = event.target.value.toUpperCase();
+  // Remove tudo que não for letra ou número e limita a 7 dígitos reais
+  val = val.replace(/[^A-Z0-9]/g, '').substring(0, 7);
+  
+  // Se tem mais de 4 caracteres, verifica o 5º caractere (índice 4)
+  if (val.length > 4) {
+    // Se for um número, é o padrão antigo, adiciona o traço
+    if (/[0-9]/.test(val[4])) {
+      val = val.substring(0, 3) + '-' + val.substring(3);
+    }
+  }
+  formData.value.placa = val;
+}
+// ----------------------------------------------------
 
 async function handleSalvar() {
   try {
@@ -167,11 +187,26 @@ function getNomeCliente(id) {
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Ano</label>
-              <input type="number" required v-model="formData.ano" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: 2020" />
+              <input 
+                type="number" 
+                required 
+                v-model="formData.ano" 
+                min="1900"
+                :max="anoMaximo"
+                class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                placeholder="Ex: 2020" 
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Placa</label>
-              <input type="text" required v-model="formData.placa" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase" placeholder="ABC1D23" />
+              <input 
+                type="text" 
+                required 
+                v-model="formData.placa" 
+                @input="mascaraPlaca"
+                class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase" 
+                placeholder="ABC1D23" 
+              />
             </div>
           </div>
 

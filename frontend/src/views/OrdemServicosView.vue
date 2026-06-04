@@ -12,6 +12,8 @@ const isModalOpen = ref(false)
 const idEdicao = ref(null)
 const termoBusca = ref("")
 
+const hojeDataIso = new Date().toISOString().split('T')[0];
+
 // Função de padronização para exibição
 const formatarMoeda = (valor) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(valor || 0));
@@ -31,7 +33,6 @@ async function carregarDados() {
 }
 
 function abrirModalNovo() {
-  // Pega a data de hoje no formato YYYY-MM-DD para já vir preenchido
   const hoje = new Date().toISOString().split('T')[0]
   formData.value = { veiculo_id: "", funcionario_id: "", status: "Aberta", data_abertura: hoje, data_conclusao: "", valor_total: "" }
   idEdicao.value = null
@@ -51,9 +52,35 @@ function abrirModalEdicao(os) {
   isModalOpen.value = true
 }
 
+// ----------------- REGRAS DA ORDEM DE SERVIÇO -----------------
+function ajustarDataConclusao() {
+  if (formData.value.status === 'Concluída') {
+    formData.value.data_conclusao = new Date().toISOString().split('T')[0];
+  } else {
+    // Limpa a data de conclusão se não estiver concluída
+    formData.value.data_conclusao = "";
+  }
+}
+// --------------------------------------------------------------
+
 async function handleSalvar() {
   try {
-  
+    // Validação do ano 2026 em diante
+    const anoAbertura = new Date(formData.value.data_abertura).getFullYear();
+    if (anoAbertura < 2026) {
+      alert("Operação bloqueada: A data de abertura não pode ser anterior a 2026.");
+      return;
+    }
+
+    // Validação estrita da conclusão
+    if (formData.value.status === 'Concluída') {
+      const hoje = new Date().toISOString().split('T')[0];
+      if (formData.value.data_conclusao !== hoje) {
+        alert("Aviso do Sistema: A OS foi marcada como 'Concluída'. A data de conclusão foi ajustada automaticamente para HOJE.");
+        formData.value.data_conclusao = hoje;
+      }
+    }
+
     const dadosParaEnviar = {
       ...formData.value,
       veiculo_id: parseInt(formData.value.veiculo_id),
@@ -178,18 +205,26 @@ onMounted(carregarDados)
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data Abertura</label>
-              <input type="date" required v-model="formData.data_abertura" class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <input type="date" required min="2026-01-01" v-model="formData.data_abertura" class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data Conclusão</label>
-              <input type="date" v-model="formData.data_conclusao" class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <!-- Bloqueia a edição se for concluída, força o usuário a respeitar o dia -->
+              <input 
+                type="date" 
+                v-model="formData.data_conclusao" 
+                :readonly="formData.status === 'Concluída'"
+                :class="{'bg-slate-100 cursor-not-allowed': formData.status === 'Concluída'}"
+                class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" 
+              />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
-              <select v-model="formData.status" class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+              <!-- Adicionado o evento @change para rodar a lógica ao mudar o status -->
+              <select v-model="formData.status" @change="ajustarDataConclusao" class="w-full border border-slate-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
                 <option value="Aberta">Aberta</option>
                 <option value="Em Andamento">Em Andamento</option>
                 <option value="Concluída">Concluída</option>

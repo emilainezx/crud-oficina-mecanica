@@ -38,6 +38,32 @@ function abrirModalEdicao(funcionario) {
   isModalOpen.value = true
 }
 
+// ----------------- MÁSCARAS E VALIDAÇÕES -----------------
+function mascaraNomeECargo(event, campo) {
+  let val = event.target.value;
+  val = val.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+  val = val.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+  formData.value[campo] = val;
+}
+
+function mascaraTelefone(event) {
+  let val = event.target.value;
+  val = val.replace(/\D/g, '').substring(0, 11);
+  if (val.length > 2) val = '(' + val.substring(0, 2) + ') ' + val.substring(2);
+  if (val.length > 10) val = val.substring(0, 10) + '-' + val.substring(10);
+  formData.value.telefone = val;
+}
+
+function mascaraCPF(event) {
+  let val = event.target.value;
+  val = val.replace(/\D/g, '').substring(0, 11);
+  if (val.length > 3) val = val.substring(0, 3) + '.' + val.substring(3);
+  if (val.length > 7) val = val.substring(0, 7) + '.' + val.substring(7);
+  if (val.length > 11) val = val.substring(0, 11) + '-' + val.substring(11);
+  formData.value.cpf = val;
+}
+// ---------------------------------------------------------
+
 async function handleSalvar() {
   try {
     const dadosParaEnviar = {
@@ -111,14 +137,50 @@ async function handleDeletar(id) {
           <button @click="isModalOpen = false" class="text-slate-500 hover:text-red-500 cursor-pointer"><PhX :size="24" /></button>
         </div>
         <form @submit.prevent="handleSalvar" class="p-5 space-y-4">
-          <input type="text" required v-model="formData.nome" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Nome Completo" />
+          <input 
+            type="text" 
+            required 
+            v-model="formData.nome" 
+            @input="(e) => mascaraNomeECargo(e, 'nome')"
+            class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" 
+            placeholder="Nome Completo" 
+          />
           <div class="grid grid-cols-2 gap-4">
-            <input type="text" required v-model="formData.cpf" class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="CPF" />
-            <input type="text" required v-model="formData.telefone" class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Telefone" />
+            <input 
+              type="text" 
+              required 
+              v-model="formData.cpf" 
+              @input="mascaraCPF"
+              class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" 
+              placeholder="CPF" 
+            />
+            <input 
+              type="text" 
+              required 
+              v-model="formData.telefone" 
+              @input="mascaraTelefone"
+              class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" 
+              placeholder="Telefone" 
+            />
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <input type="text" required v-model="formData.cargo" class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Cargo" />
-            <input type="number" step="0.01" required v-model="formData.salario" class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Salário (R$)" />
+            <input 
+              type="text" 
+              required 
+              v-model="formData.cargo" 
+              @input="(e) => mascaraNomeECargo(e, 'cargo')"
+              class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" 
+              placeholder="Cargo" 
+            />
+            <input 
+              type="number" 
+              step="0.01" 
+              min="0"
+              required 
+              v-model="formData.salario" 
+              class="border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" 
+              placeholder="Salário (R$)" 
+            />
           </div>
           <div class="pt-4 flex justify-end gap-3">
             <button type="button" @click="isModalOpen = false" class="px-4 py-2 bg-slate-100 rounded-lg font-medium">Cancelar</button>

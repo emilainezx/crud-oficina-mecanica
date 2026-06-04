@@ -51,11 +51,11 @@ function abrirModalEdicao(item) {
 
 async function handleSalvar() {
   try {
-    // CORREÇÃO: Converte valores numéricos antes de enviar
+    // CORREÇÃO: Converte valores numéricos e trava quantidade para não ser negativa
     const dadosParaEnviar = {
       ...formData.value,
       preco: parseFloat(formData.value.preco),
-      quantidade: parseInt(formData.value.quantidade) || 0
+      quantidade: Math.max(0, parseInt(formData.value.quantidade) || 0)
     }
 
     if (idEdicao.value) {
@@ -174,7 +174,7 @@ async function handleDeletar(id) {
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Preço (R$)</label>
               <input 
-                type="number" step="0.01" required v-model="formData.preco" 
+                type="number" step="0.01" min="0" required v-model="formData.preco" 
                 class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" 
                 placeholder="Ex: 150.00" 
               />
@@ -182,7 +182,7 @@ async function handleDeletar(id) {
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Quantidade Inicial</label>
               <input 
-                type="number" v-model="formData.quantidade" 
+                type="number" v-model="formData.quantidade" min="0"
                 class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" 
                 placeholder="Ex: 15" 
               />

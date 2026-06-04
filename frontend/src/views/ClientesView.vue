@@ -31,6 +31,27 @@ function abrirModalEdicao(cliente) {
   isModalOpen.value = true
 }
 
+// ----------------- MÁSCARAS E VALIDAÇÕES -----------------
+function mascaraNome(event) {
+  let val = event.target.value;
+  // Remove tudo que não for letra (incluindo acentos) ou espaço
+  val = val.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+  // Padroniza primeira letra maiúscula de cada palavra
+  val = val.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+  formData.value.nome = val;
+}
+
+function mascaraTelefone(event) {
+  let val = event.target.value;
+  // Remove tudo que não for número e limita a 11 dígitos
+  val = val.replace(/\D/g, '').substring(0, 11);
+  // Aplica a máscara (XX) 9XXXX-XXXX
+  if (val.length > 2) val = '(' + val.substring(0, 2) + ') ' + val.substring(2);
+  if (val.length > 10) val = val.substring(0, 10) + '-' + val.substring(10);
+  formData.value.telefone = val;
+}
+// ---------------------------------------------------------
+
 async function handleSalvar() {
   try {
     if (idEdicao.value) {
@@ -131,6 +152,7 @@ async function handleDeletar(id) {
               type="text" 
               required
               v-model="formData.nome"
+              @input="mascaraNome"
               class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Ex: João da Silva"
             />
@@ -142,6 +164,7 @@ async function handleDeletar(id) {
               type="text" 
               required
               v-model="formData.telefone"
+              @input="mascaraTelefone"
               class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Ex: (81) 99999-9999"
             />

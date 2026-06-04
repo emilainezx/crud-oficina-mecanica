@@ -27,38 +27,14 @@ O **OficinaPro** é uma aplicação CRUD completa e escalável projetada para o 
 
 ## 🚀 Como Configurar e Executar o Projeto
 
-### 1. Configurando o Banco de Dados (Supabase)
-
-Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizaremos o **Supabase** por ser gratuito e na nuvem. Siga este passo a passo com atenção:
-
-### 1. Criando a conta e o Projeto
-1. Acesse [supabase.com](https://supabase.com/) e clique em **"Start your project"**.
-2. Crie uma conta (pode usar o GitHub) e faça login.
-3. No painel, clique no botão verde **"New Project"** e escolha sua organização.
-4. Preencha os dados do projeto:
-   - **Name:** `OficinaPro-DB` (ou qualquer nome de sua preferência).
-   - **Database Password:** Crie uma senha forte (Ex: `Oficina@2026`). **⚠️ ANOTE ESSA SENHA, VOCÊ VAI PRECISAR DELA NO ARQUIVO .ENV!**
-   - **Region:** `South America (São Paulo)` (Para ficar mais rápido).
-5. Clique em **"Create new project"**. O Supabase vai demorar uns 2 a 3 minutos para provisionar o banco.
-
-### 2. Pegando os Dados para o arquivo `.env`
-Com o projeto criado no Supabase:
-1. No menu lateral esquerdo, desça até o ícone de engrenagem ⚙️ (**Project Settings**).
-2. No submenu de configurações, clique em **Database**.
-3. Role a página até a seção **Connection parameters** (certifique-se de que a aba *URI* ou *Parameters* esteja selecionada).
-4. Lá você encontrará as informações para preencher seu `.env` local:
-   - **Host:** `db.xxxxx.supabase.co`
-   - **Port:** `5432`
-   - **User:** `postgres`
-
-### 3. Clonar o Repositório
+### 1. Clonar o Repositório
 
 ```bash
 git clone https://github.com/emilainezx/crud-oficina-mecanica.git
 cd crud-oficina-mecanica
 ```
 
-### 4. Configurando e Rodando o Back-end (API)
+### 2. Configurar e Rodar o Back-end (API)
 Abra o terminal, entre na pasta do backend e instale as dependências:
 
 ```Bash
@@ -66,35 +42,52 @@ cd backend
 npm install
 ```
 
-### 5. Criando o Arquivo de Senhas:
-Dentro da pasta backend, crie um arquivo chamado exatamente .env e preencha com os dados que você pegou lá no Supabase no passo anterior:
+### 3. Configurar o Banco de Dados (Supabase)
+Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizaremos o **Supabase** por ser gratuito e na nuvem. Siga este passo a passo com atenção:
+
+1. Acesse [supabase.com](https://supabase.com/) e clique em **"Start your project"**.
+2. Crie uma conta com seu GitHub e faça login.
+3. No painel, clique no botão verde **"New Project"** e escolha sua organização.
+4. Preencha os dados do projeto:
+   - **Name:** `OficinaPro-DB` (ou qualquer nome de sua preferência).
+   - **Database Password:** `Oficina@2026` (ou qualquer senha forte de sua preferência). 
+   **⚠️ ANOTE ESSA SENHA, VOCÊ VAI PRECISAR DELA NO ARQUIVO .ENV!**
+   - **Region:** `South America (São Paulo)` (Para ficar mais rápido).
+5. Finalize selecionando **Create new project**.
+6. Selecione o botão verde **Connect** na barra superior.
+7. Selecione a opção **Direct Connection string**, em **Connection Method**, selecione **Session pooler**.
+8. Em **Type**, selecione **Node.js**.
+9. Copie **host** e **user**.
+
+### 4. Criar o Arquivo `.env` e integrar com o Supabase
+
+1. Dentro da pasta **backend**, crie um arquivo (na raiz da pasta) chamado **.env**, ou renomeie o **.env.example** para **.env**.
+2. Na tela principal do **Supabase**, abaixo de **OficinaPro-DB**, terá um **link**, com um **botão Copy**, selecione-o.
+3. Copie **Project URL** e **Publishable key**.
+4. Substitua no arquivo `.env` os dados copiados: **host**, **sua senha**, **user**, **Project URL** e **Publishable key**
 
 ```Bash
-# Exemplo de preenchimento do .env
-DB_HOST=db.SUA_URL_AQUI.supabase.co
-DB_USER=postgres
-DB_PASSWORD=A_SENHA_QUE_VOCE_CRIOU
+DB_USER=postgres.uyujvcixprpjdcakltsb #Seu user
+DB_PASSWORD=Oficina@2026 #Sua senha
 DB_NAME=postgres
+DB_HOST=aws-1-sa-east-1.pooler.supabase.com #Sua região
 DB_PORT=5432
-DB_DIALECT=postgres
-PORT=3333
+
+SUPABASE_URL=https://uyujvcixprpjdcakltsb.supabase.co #Project URL
+SUPABASE_KEY=sb_publishable_DjjZWqLxHUHktdCtBzAYJQ_DR50SkMY #Publishable key
 ```
 
-### 6. Criando as tabelas e ligando a API:
-Ainda no terminal da pasta backend, rode as migrações para criar as tabelas no Supabase automaticamente:
+### 5. Criar as tabelas e ligar a API
+Ainda no terminal da pasta **backend**, rode os comandos a seguir:
 
 ```Bash
+npm install postgres
 npx sequelize-cli db:migrate
 npm run dev
 ```
-O terminal avisará que a API está rodando em: 
 
-```text
-http://localhost:3333
-```
-
-### 6. Configurando e Rodando o Front-end (Visual)
-Abra um **NOVO** terminal (não feche o do backend), e entre na pasta do front-end:
+### 6. Configurar e Rodar o frontend (Visual)
+Abra um **NOVO** terminal (não feche o terminal **backend**), e selecine a pasta **frontend**:
 
 ```bash
 cd frontend
@@ -106,6 +99,19 @@ O sistema estará disponível em:
 
 ```text
 http://localhost:5173
+```
+
+### 7. Popular o Banco de Dados Automáticamente (Seed)
+
+Para facilitar os testes, criamos um script automatizado (`popularBanco.js`). Ele limpa o banco de dados de forma segura e injeta um cenário real e completo, contendo mecânicos, clientes, frota de veículos, estoque de peças e diversas Ordens de Serviço em diferentes status (para testar o fluxo do Dashboard).
+
+**Passo a passo para rodar:**
+
+1. Abra um terminal e garanta que está dentro da pasta do servidor:
+
+```bash
+cd backend
+node popularBanco.js
 ```
 
 ---
@@ -120,6 +126,7 @@ http://localhost:5173
 | **Funcionários** | ![Funcionários](backend/assets/Funcionários.png) | ![Funcionários Supabase](backend/assets/Funcionários_sup.png) |
 | **Peças/Serviços** | ![Peças e Serviços](backend/assets/Peças_Serviços.png) | ![Peças e Serviços Supabase](backend/assets/Peças_Serviços_sup.png) |
 | **Ordens de Serviço** | ![Ordens de Serviço](backend/assets/Ordens_de_Serviço.png) | ![Ordens de Serviço Supabase](backend/assets/Ordens_de_Serviço_sup.png) |
+
 ---
 
 ## ✨ Funcionalidades
