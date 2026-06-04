@@ -1,151 +1,225 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { listarVeiculos, criarVeiculo, atualizarVeiculo, deletarVeiculo } from '../services/veiculoService.js'
 import { listarClientes } from '../services/clienteService.js'
+import { PhCar, PhPencil, PhTrash, PhX } from "@phosphor-icons/vue"
 
 const veiculos = ref([])
 const clientes = ref([])
-const form = ref({ cliente_id: '', marca: '', modelo: '', ano: '', placa: '' })
-const editandoId = ref(null)
-const erro = ref('')
+const isModalOpen = ref(false)
+const idEdicao = ref(null)
+
+// Define o ano máximo como o ano que vem
+const anoMaximo = computed(() => new Date().getFullYear() + 1);
+
+const formData = ref({
+  cliente_id: "",
+  marca: "",
+  modelo: "",
+  ano: "",
+  placa: ""
+})
 
 async function carregarDados() {
-  const [resVeiculos, resClientes] = await Promise.all([listarVeiculos(), listarClientes()])
-  veiculos.value = resVeiculos.data
-  clientes.value = resClientes.data
-}
-
-function nomeCliente(id) {
-  const cliente = clientes.value.find(c => c.id === id)
-  return cliente ? cliente.nome : id
-}
-
-async function salvar() {
-  const anoNum = Number(form.value.ano)
-  const anoAtual = new Date().getFullYear()
-
-  if (!form.value.cliente_id || !form.value.marca || !form.value.modelo || !form.value.ano || !form.value.placa) {
-    erro.value = 'Todos os campos são obrigatórios.'
-    return
-  }
-  if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(form.value.marca)) {
-    erro.value = 'Marca deve conter apenas letras.'
-    return
-  }
-  if (!/^[a-zA-ZÀ-ÿ0-9\s]+$/.test(form.value.modelo)) {
-    erro.value = 'Modelo inválido.'
-    return
-  }
-  if (isNaN(anoNum) || anoNum < 1886 || anoNum > anoAtual) {
-    erro.value = `Ano deve ser entre 1886 e ${anoAtual}.`
-    return
-  }
-  if (!/^[A-Z]{3}\d[A-Z\d]\d{2}$/.test(form.value.placa.toUpperCase())) {
-    erro.value = 'Placa inválida. Use o formato ABC1234 ou ABC1D23.'
-    return
-  }
-
   try {
-    const dados = { ...form.value, placa: form.value.placa.toUpperCase(), ano: anoNum }
-    if (editandoId.value) {
-      await atualizarVeiculo(editandoId.value, dados)
-    } else {
-      await criarVeiculo(dados)
-    }
-    form.value = { cliente_id: '', marca: '', modelo: '', ano: '', placa: '' }
-    editandoId.value = null
-    erro.value = ''
-    await carregarDados()
-  } catch (e) {
-    erro.value = e.response?.data?.error || 'Erro ao salvar veículo.'
-  }
-}
-
-function editar(veiculo) {
-  form.value = { cliente_id: veiculo.cliente_id, marca: veiculo.marca, modelo: veiculo.modelo, ano: veiculo.ano, placa: veiculo.placa }
-  editandoId.value = veiculo.id
-}
-
-async function deletar(id) {
-  if (confirm('Deseja deletar este veículo?')) {
-    await deletarVeiculo(id)
-    await carregarDados()
+    const [resVeiculos, resClientes] = await Promise.all([
+      listarVeiculos(),
+      listarClientes()
+    ])
+    veiculos.value = resVeiculos.data
+    clientes.value = resClientes.data
+  } catch (error) {
+    console.error("Erro ao carregar dados:", error)
   }
 }
 
 onMounted(carregarDados)
+
+function abrirModalNovo() {
+  formData.value = { cliente_id: "", marca: "", modelo: "", ano: "", placa: "" }
+  idEdicao.value = null
+  isModalOpen.value = true
+}
+
+function abrirModalEdicao(veiculo) {
+  formData.value = {
+    cliente_id: veiculo.cliente_id,
+    marca: veiculo.marca,
+    modelo: veiculo.modelo,
+    ano: veiculo.ano,
+    placa: veiculo.placa
+  }
+  idEdicao.value = veiculo.id
+  isModalOpen.value = true
+}
+
+// ----------------- MÁSCARA DA PLACA -----------------
+function mascaraPlaca(event) {
+  let val = event.target.value.toUpperCase();
+  // Remove tudo que não for letra ou número e limita a 7 dígitos reais
+  val = val.replace(/[^A-Z0-9]/g, '').substring(0, 7);
+  
+  // Se tem mais de 4 caracteres, verifica o 5º caractere (índice 4)
+  if (val.length > 4) {
+    // Se for um número, é o padrão antigo, adiciona o traço
+    if (/[0-9]/.test(val[4])) {
+      val = val.substring(0, 3) + '-' + val.substring(3);
+    }
+  }
+  formData.value.placa = val;
+}
+// ----------------------------------------------------
+
+async function handleSalvar() {
+  try {
+    const dados = { ...formData.value, placa: formData.value.placa.toUpperCase() }
+    if (idEdicao.value) {
+      await atualizarVeiculo(idEdicao.value, dados)
+    } else {
+      await criarVeiculo(dados)
+    }
+    isModalOpen.value = false
+    await carregarDados()
+  } catch (error) {
+    console.error("Erro ao salvar:", error)
+    alert("Erro ao salvar veículo. Verifique se a placa já existe.")
+  }
+}
+
+async function handleDeletar(id) {
+  if (confirm("Excluir este veículo permanentemente?")) {
+    try {
+      await deletarVeiculo(id)
+      await carregarDados()
+    } catch (error) {
+      console.error("Erro ao deletar:", error)
+      alert("Erro ao excluir. O veículo pode estar em uma Ordem de Serviço.")
+    }
+  }
+}
+
+function getNomeCliente(id) {
+  const clienteEncontrado = clientes.value.find(c => c.id === id)
+  return clienteEncontrado ? clienteEncontrado.nome : "Cliente não encontrado"
+}
 </script>
 
 <template>
-  <div class="container">
-    <h1>Veículos</h1>
-
-    <div class="form">
-      <h2>{{ editandoId ? 'Editar Veículo' : 'Novo Veículo' }}</h2>
-
-      <select v-model="form.cliente_id">
-        <option value="">Selecione o cliente</option>
-        <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
-          {{ cliente.nome }}
-        </option>
-      </select>
-
-      <input v-model="form.marca" placeholder="Marca do veículo" />
-      <input v-model="form.modelo" placeholder="Modelo do veículo" />
-      <input v-model="form.ano" placeholder="Ano do veículo" />
-      <input v-model="form.placa" placeholder="Placa do veículo" />
-
-      <p v-if="erro" class="erro">{{ erro }}</p>
-      <button @click="salvar">{{ editandoId ? 'Atualizar' : 'Cadastrar' }}</button>
-      <button v-if="editandoId" @click="editandoId = null; form = { cliente_id: '', marca: '', modelo: '', ano: '', placa: '' }">Cancelar</button>
+  <div class="animate-fade-in relative">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-3xl font-bold text-slate-800">Frota de Veículos</h2>
+      <button 
+        @click="abrirModalNovo"
+        class="bg-slate-800 hover:bg-slate-900 cursor-pointer text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 shadow-md transition-all"
+      >
+        <PhCar :size="20" />
+        Novo Veículo
+      </button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Marca</th>
-          <th>Modelo</th>
-          <th>Ano</th>
-          <th>Placa</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="veiculo in veiculos" :key="veiculo.id">
-          <td>{{ nomeCliente(veiculo.cliente_id) }}</td>
-          <td>{{ veiculo.marca }}</td>
-          <td>{{ veiculo.modelo }}</td>
-          <td>{{ veiculo.ano }}</td>
-          <td>{{ veiculo.placa }}</td>
-          <td>
-            <button @click="editar(veiculo)">Editar</button>
-            <button @click="deletar(veiculo.id)">Deletar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm uppercase tracking-wider">
+            <th class="p-4 font-semibold">Placa</th>
+            <th class="p-4 font-semibold">Veículo</th>
+            <th class="p-4 font-semibold">Proprietário</th>
+            <th class="p-4 font-semibold text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <tr v-if="veiculos.length === 0">
+            <td colspan="4" class="p-8 text-center text-slate-500">
+              Nenhum veículo cadastrado ainda.
+            </td>
+          </tr>
+          <tr v-else v-for="veiculo in veiculos" :key="veiculo.id" class="hover:bg-slate-50 transition-colors">
+            <td class="p-4 font-bold text-slate-700 uppercase tracking-widest">{{ veiculo.placa }}</td>
+            <td class="p-4 text-slate-800">{{ veiculo.marca }} {{ veiculo.modelo }} ({{ veiculo.ano }})</td>
+            <td class="p-4 text-slate-600">{{ getNomeCliente(veiculo.cliente_id) }}</td>
+            <td class="p-4 flex justify-center gap-3">
+              <button @click="abrirModalEdicao(veiculo)" class="text-blue-500 cursor-pointer hover:text-blue-700 p-1 bg-blue-50 rounded"><PhPencil :size="20" /></button>
+              <button @click="handleDeletar(veiculo.id)" class="text-red-500 cursor-pointer hover:text-red-700 p-1 bg-red-50 rounded"><PhTrash :size="20" /></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-if="isModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+        <div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50">
+          <h3 class="text-xl font-bold text-slate-800">
+            {{ idEdicao ? "Editar Veículo" : "Cadastrar Veículo" }}
+          </h3>
+          <button @click="isModalOpen = false" class="text-slate-500 hover:text-red-500 transition-colors cursor-pointer">
+            <PhX :size="24" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="handleSalvar" class="p-5 space-y-4">
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Proprietário (Cliente)</label>
+            <select 
+              required
+              v-model="formData.cliente_id"
+              class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+            >
+              <option value="" disabled>Selecione um cliente...</option>
+              <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
+                {{ cliente.nome }} ({{ cliente.telefone }})
+              </option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Marca</label>
+              <input type="text" required v-model="formData.marca" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Toyota" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Modelo</label>
+              <input type="text" required v-model="formData.modelo" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Corolla" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Ano</label>
+              <input 
+                type="number" 
+                required 
+                v-model="formData.ano" 
+                min="1900"
+                :max="anoMaximo"
+                class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                placeholder="Ex: 2020" 
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Placa</label>
+              <input 
+                type="text" 
+                required 
+                v-model="formData.placa" 
+                @input="mascaraPlaca"
+                class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase" 
+                placeholder="ABC1D23" 
+              />
+            </div>
+          </div>
+
+          <div class="pt-4 flex justify-end gap-3">
+            <button type="button" @click="isModalOpen = false" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors cursor-pointer">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 text-white bg-slate-800 hover:bg-slate-900 rounded-lg font-medium shadow-md transition-colors cursor-pointer">
+              {{ idEdicao ? "Atualizar" : "Salvar" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-
-.container { padding: 24px; 
-}
-.form { display: flex; flex-direction: column; gap: 8px; max-width: 400px; margin-bottom: 24px; 
-}
-input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; 
-}
-button { padding: 8px 16px; background-color: #1a1a2e; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px; 
-}
-button:hover { background-color: #e94560; 
-}
-table { width: 100%; border-collapse: collapse; 
-}
-th, td { padding: 10px; border: 1px solid #ddd; text-align: left; 
-}
-th { background-color: #1a1a2e; color: white; 
-}
-.erro { color: red; font-size: 14px; 
-}
-</style>

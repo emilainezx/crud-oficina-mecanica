@@ -1,8 +1,18 @@
 # 🚗 OficinaPro | Sistema de Gerenciamento Mecânico
 
+<div align="center">
+  <img src="backend/assets/OFICINAPRO.png" alt="Logo OficinaPro" width="500">
+  
+  <br>
+  
+  <p><b>Sistema Completo de Gerenciamento Mecânico e Fluxo de OS</b></p>
+</div>
+
+<br>
+
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
@@ -15,59 +25,71 @@ O **OficinaPro** é uma aplicação CRUD completa e escalável projetada para o 
 
 ---
 
-## 🚀 Como Executar o Projeto
+## 🚀 Como Configurar e Executar o Projeto
 
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/AllyPts/crud-oficina-mecanica.git
+git clone https://github.com/emilainezx/crud-oficina-mecanica.git
 cd crud-oficina-mecanica
 ```
 
-### 2. Instalar Dependências do Back-end
+### 2. Configurar e Rodar o Back-end (API)
+Abra o terminal, entre na pasta do backend e instale as dependências:
 
-```bash
+```Bash
+cd backend
 npm install
 ```
 
-### 3. Configurar Variáveis de Ambiente
+### 3. Configurar o Banco de Dados (Supabase)
+Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizaremos o **Supabase** por ser gratuito e na nuvem. Siga este passo a passo com atenção:
 
-Crie um arquivo `.env` na raiz do projeto:
+1. Acesse [supabase.com](https://supabase.com/) e clique em **"Start your project"**.
+2. Crie uma conta com seu GitHub e faça login.
+3. No painel, clique no botão verde **"New Project"** e escolha sua organização.
+4. Preencha os dados do projeto:
+   - **Name:** `OficinaPro-DB` 
+   - **Database Password:** `Oficina@2026` 
+   - **Region:** `South America (São Paulo)` 
+5. Finalize selecionando **Create new project**.
+6. Selecione o botão verde **Connect** na barra superior.
+7. Selecione a opção **Direct Connection string**, em **Connection Method**, selecione **Session pooler**.
+8. Em **Type**, selecione **Node.js**.
+9. Copie **host** e **user**.
 
-```env
-DB_HOST=db.ogbenbueelrbbuxzcatz.supabase.co
-DB_USER=postgres
-DB_PASSWORD=Oficina@2026
+### 4. Criar o Arquivo `.env` e integrar com o Supabase
+
+1. Dentro da pasta **backend**, crie um arquivo (na raiz da pasta) chamado **.env**, ou renomeie o **.env.example** para **.env**.
+2. Na tela principal do **Supabase**, abaixo de **OficinaPro-DB**, terá um **link**, com um **botão Copy**, selecione-o.
+3. Copie **Project URL** e **Publishable key**.
+4. Substitua no arquivo `.env` os dados copiados nos locais comentados: **host**, **sua senha**, **user**, **Project URL** e **Publishable key**
+
+```Bash
+DB_USER=postgres.uyujvcixprpjdcakltsb #Seu user
+DB_PASSWORD=Oficina@2026 #Sua senha
 DB_NAME=postgres
+DB_HOST=aws-1-sa-east-1.pooler.supabase.com #Sua região
 DB_PORT=5432
-DB_DIALECT=postgres
-PORT=3333
+
+SUPABASE_URL=https://uyujvcixprpjdcakltsb.supabase.co #Project URL
+SUPABASE_KEY=sb_publishable_DjjZWqLxHUHktdCtBzAYJQ_DR50SkMY #Publishable key
 ```
 
-### 4. Executar as Migrações
+### 5. Criar as tabelas e ligar a API
+Ainda no terminal da pasta **backend**, rode os comandos a seguir:
 
-```bash
+```Bash
+npm install postgres
 npx sequelize-cli db:migrate
-```
-
-### 5. Iniciar o Back-end
-
-```bash
 npm run dev
 ```
 
-A API estará disponível em:
-
-```text
-http://localhost:3333
-```
-
-### 6. Iniciar o Front-end
-
-Abra um novo terminal:
+### 6. Configurar e Rodar o frontend (Visual)
+Abra um **NOVO** terminal (não feche o terminal **backend**), e selecine a pasta **frontend**:
 
 ```bash
-cd oficina-frontend
+cd frontend
 npm install
 npm run dev
 ```
@@ -78,64 +100,76 @@ O sistema estará disponível em:
 http://localhost:5173
 ```
 
+### 7. Popular o Banco de Dados Automáticamente (Seed)
+
+Para facilitar os testes, criamos um script automatizado (`popularBanco.js`). Ele limpa o banco de dados de forma segura e injeta um cenário real e completo, contendo mecânicos, clientes, frota de veículos, estoque de peças e diversas Ordens de Serviço em diferentes status (para testar o fluxo do Dashboard).
+
+**Passo a passo para rodar:**
+
+1. Abra um terminal e garanta que está dentro da pasta do servidor:
+
+```bash
+cd backend
+node popularBanco.js
+```
+
 ---
 
 ## 🖼️ Demonstração do Sistema
 
 | Funcionalidade | Print da Interface | Dados no Supabase |
 | :--- | :---: | :---: |
-| **Dashboard** | ![Dashboard](assets/Dashboard.png) | |
-| **Clientes** | ![Clientes](assets/Clientes.png) | ![Clientes Supabase](assets/Clientes_sup.png) |
-| **Veículos** | ![Veículos](assets/Veículos.png) | ![Veículos Supabase](assets/Veículos_sup.png) |
-| **Funcionários** | ![Funcionários](assets/Funcionários.png) | ![Funcionários Supabase](assets/Funcionários_sup.png) |
-| **Peças/Serviços** | ![Peças e Serviços](assets/Peças_Serviços.png) | ![Peças e Serviços Supabase](assets/Peças_Serviços_sup.png) |
-| **Ordens de Serviço** | ![Ordens de Serviço](assets/Ordens_de_Serviço.png) | ![Ordens de Serviço Supabase](assets/Ordens_de_Serviço_sup.png) |
+| **Dashboard** | ![Dashboard](backend/assets/Dashboard.png) | |
+| **Clientes** | ![Clientes](backend/assets/Clientes.png) | ![Clientes Supabase](backend/assets/Clientes_sup.png) |
+| **Veículos** | ![Veículos](backend/assets/Veículos.png) | ![Veículos Supabase](backend/assets/Veículos_sup.png) |
+| **Funcionários** | ![Funcionários](backend/assets/Funcionários.png) | ![Funcionários Supabase](backend/assets/Funcionários_sup.png) |
+| **Peças/Serviços** | ![Peças e Serviços](backend/assets/Peças_Serviços.png) | ![Peças e Serviços Supabase](backend/assets/Peças_Serviços_sup.png) |
+| **Ordens de Serviço** | ![Ordens de Serviço](backend/assets/Ordens_de_Serviço.png) | ![Ordens de Serviço Supabase](backend/assets/Ordens_de_Serviço_sup.png) |
+
 ---
 
 ## ✨ Funcionalidades
 
 - 👥 **Gestão de Clientes:** Cadastro e controle de proprietários.
-- 🚗 **Frota de Veículos:** Registro detalhado de veículos vinculados aos clientes (1:N).
+- 🚗 **Frota de Veículos:** Registro detalhado de veículos vinculados aos clientes.
 - 🛠️ **Equipe Técnica:** Gerenciamento de mecânicos e funcionários.
 - ⚙️ **Catálogo de Estoque:** Controle de peças e serviços oferecidos.
-- 📋 **Ordens de Serviço (OS):** Abertura, acompanhamento de status (Aberta, Em Andamento, Concluída, Cancelada) e faturamento de serviços vinculando veículos, mecânicos e itens (N:N).
-- 🔌 **Integração Full-Stack:** API RESTful robusta no back-end alimentando um dashboard interativo no front-end em tempo real.
+- 📋 **Ordens de Serviço (OS):** Abertura, acompanhamento de status (Aberta, Em Andamento, Concluída, Cancelada) e faturamento de serviços vinculando veículos, mecânicos e itens.
+- 🔌 **Integração Full-Stack:** API RESTful robusta no back-end alimentando um dashboard interativo no front-end construído em Vue 3.
 
 ---
 
 ## 🚀 Tecnologias Utilizadas
 
-O projeto foi desenvolvido utilizando as ferramentas mais modernas do mercado, separando a aplicação em uma arquitetura Full-Stack (Client-Server):
+O projeto foi desenvolvido em arquitetura Full-Stack (Monorepo), garantindo isolamento entre o Servidor (Backend) e a Interface (Frontend):
 
 ### 💻 Front-end (Interface)
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-* **[React](https://react.dev/):** Biblioteca JavaScript para construção de interfaces dinâmicas e reativas.
-* **[Vite](https://vitejs.dev/):** Build tool ultra-rápido utilizado para iniciar e empacotar o projeto React.
-* **[Tailwind CSS](https://tailwindcss.com/):** Framework de CSS utilitário para estilização rápida, responsiva e moderna direto no HTML.
-* **[Axios](https://axios-http.com/):** Cliente HTTP baseado em Promises para consumo da nossa API.+
-* **[Phosphor Icons](https://phosphoricons.com/):** Biblioteca de ícones vetoriais consistentes e limpos.
-* **[React Router](https://reactrouter.com/):** Gerenciamento de rotas e navegação fluida (Single Page Application - SPA).
+* **[Vue 3 (Composition API)](https://vuejs.org/):** Framework JavaScript progressivo para construção da interface de usuário reativa.
+* **[Vite](https://vitejs.dev/):** Build tool ultra-rápido.
+* **[Tailwind CSS](https://tailwindcss.com/):** Framework CSS utilitário para estilização rápida e responsiva.
+* **[Vue Router](https://router.vuejs.org/):** Gerenciamento de rotas (Single Page Application).
+* **[Axios](https://axios-http.com/):** Cliente HTTP para comunicação com a API.
+* **[Phosphor Icons](https://phosphoricons.com/):** Biblioteca de ícones vetoriais elegantes.
 
 ### ⚙️ Back-end (API REST)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
 ![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=Sequelize&logoColor=white)
 
-* **[Node.js](https://nodejs.org/):** Ambiente de execução JavaScript no servidor.
-* **[Express.js](https://expressjs.com/):** Framework web minimalista para criação das rotas e middlewares da API.
-* **[Sequelize](https://sequelize.org/):** ORM (Object-Relational Mapper) poderoso para modelagem de dados, migrations e queries sem escrever SQL puro.
-* **[Cors](https://expressjs.com/en/resources/middleware/cors.html):** Middleware para liberar a comunicação segura entre as portas do Front-end e Back-end.
+* **[Node.js](https://nodejs.org/) & [Express.js](https://expressjs.com/):** Ambiente e framework para criação do servidor e rotas HTTP.
+* **[Sequelize](https://sequelize.org/):** ORM poderoso para modelagem de dados, migrations e queries sem escrever SQL puro.
+* **[Cors](https://expressjs.com/en/resources/middleware/cors.html):** Segurança e permissão de comunicação entre Front e Back.
 
 ### 🗄️ Banco de Dados e Infraestrutura
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-* **[PostgreSQL](https://www.postgresql.org/):** Banco de dados relacional robusto para garantir a integridade das entidades (Clientes, Veículos, OS).
-* **[Supabase](https://supabase.com/):** Plataforma de Backend-as-a-Service (BaaS) utilizada para hospedar nosso banco de dados PostgreSQL na nuvem de forma gratuita e escalável.
-* **[Insomnia](https://insomnia.rest/):** Utilizado durante o desenvolvimento para testes e documentação dos endpoints REST.
+* **[PostgreSQL](https://www.postgresql.org/):** Banco de dados relacional que garante a integridade das tabelas.
+* **[Supabase](https://supabase.com/):** Plataforma (BaaS) hospedando o Postgres na nuvem.
 
 ---
 
@@ -154,29 +188,32 @@ Este software foi projetado e desenvolvido pelo time:
 O repositório está dividido em duas frentes principais (Monorepo), separando perfeitamente a lógica da API (Back-end) e a interface do usuário (Front-end):
 
 ```text
-📦 crud-oficina-mecanica
-├── 📂 oficina-frontend/          # Aplicação Front-end (React + Vite)
+📦 CRUD-OFICINA-MECANICA/
+├── 📂 backend/                  # Servidor, Regras de Negócio e Banco de Dados (API)
 │   ├── 📂 src/
-│   │   ├── 📂 pages/             # Telas da interface (Dashboard, Clientes, Veículos, etc.)
-│   │   ├── 📂 services/          # Configuração de consumo da API (Axios)
-│   │   ├── 📄 App.jsx            # Layout principal e Sidebar de navegação
-│   │   ├── 📄 global.css         # Estilos globais e TailwindCSS
-│   │   └── 📄 main.jsx           # Ponto de entrada e roteamento (React Router)
-│   ├── 📄 package.json
-│   └── 📄 vite.config.js
+│   │   ├── controllers/         # Lógica das rotas (Criar, Listar, Atualizar, Deletar)
+│   │   ├── database/            # Configuração e Migrations do Sequelize
+│   │   ├── models/              # Estrutura das tabelas no banco de dados
+│   │   ├── routes.js            # Endpoints da API REST
+│   │   └── server.js            # Inicializador da porta 3333
+│   ├── .env                     # Credenciais do Supabase (NÃO ENVIADO AO GITHUB)
+│   ├── .env.example             # Exemplo de variáveis necessárias
+│   ├── .sequelizerc             # Caminhos do ORM
+│   └── package.json             # Dependências Node.js do Backend
 │
-├── 📂 src/                       # Aplicação Back-end (Node.js + Express)
-│   ├── 📂 config/
-│   │   └── 📄 database.js        # Credenciais de conexão com o PostgreSQL (Supabase)
-│   ├── 📂 controllers/           # Regras de negócio e manuseio de requisições da API
-│   ├── 📂 database/
-│   │   └── 📂 migrations/        # Histórico de criação e versionamento das tabelas
-│   ├── 📂 models/                # Modelagem de dados e relacionamentos (Sequelize ORM)
-│   ├── 📂 seeders/               # Scripts para carga inicial de dados
-│   ├── 📄 app.js                 # Configurações, CORS e middlewares do Express
-│   ├── 📄 routes.js              # Definição dos endpoints REST
-│   └── 📄 server.js              # Inicialização do servidor na porta 3333
+├── 📂 frontend/                 # Interface do Usuário (Vue + Vite)
+│   ├── 📂 public/               # Favicon e assets estáticos
+│   ├── 📂 src/
+│   │   ├── router/              # Configuração das rotas das páginas
+│   │   ├── services/            # Configuração do Axios (api.js)
+│   │   ├── views/               # Telas principais (Dashboard, Clientes, etc.)
+│   │   ├── App.vue              # Componente raiz e Sidebar
+│   │   ├── main.js              # Ponto de entrada do Vue
+│   │   └── style.css            # Importações do Tailwind CSS
+│   ├── .gitignore               # Arquivos ignorados pelo Git no front
+│   ├── index.html               # Base do site
+│   ├── package.json             # Dependências Vue.js do Frontend
+│   └── vite.config.js           # Compilador
 │
-├── 📄 .env.example               # Exemplo de configuração de variáveis de ambiente
-├── 📄 package.json               # Dependências do Back-end
-└── 📄 README.md                  # Documentação principal do projeto
+├── .gitignore                   # Ignora pastas de bibliotecas (node_modules) na raiz
+└── README.md                    # Esta documentação que você está lendo
