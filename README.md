@@ -35,58 +35,49 @@ cd crud-oficina-mecanica
 ```
 
 ### 2. Configurar e Rodar o Back-end (API)
+
 Abra o terminal, entre na pasta do backend e instale as dependências:
 
-```Bash
+```bash
 cd backend
 npm install
 ```
 
-### 3. Configurar o Banco de Dados (Supabase)
-Para o sistema funcionar, precisamos de um banco de dados PostgreSQL. Utilizaremos o **Supabase** por ser gratuito e na nuvem. Siga este passo a passo com atenção:
+### 3. Criar o Arquivo `.env`
 
-1. Acesse [supabase.com](https://supabase.com/) e clique em **"Start your project"**.
-2. Crie uma conta com seu GitHub e faça login.
-3. No painel, clique no botão verde **"New Project"** e escolha sua organização.
-4. Preencha os dados do projeto:
-   - **Name:** `OficinaPro-DB` 
-   - **Database Password:** `Oficina@2026` 
-   - **Region:** `South America (São Paulo)` 
-5. Finalize selecionando **Create new project**.
-6. Selecione o botão verde **Connect** na barra superior.
-7. Selecione a opção **Direct Connection string**, em **Connection Method**, selecione **Session pooler**.
-8. Em **Type**, selecione **Node.js**.
-9. Copie **host** e **user**.
+Dentro da pasta **backend**, renomeie o arquivo **.env.example** para **.env**:
 
-### 4. Criar o Arquivo `.env` e integrar com o Supabase
-
-1. Dentro da pasta **backend**, crie um arquivo (na raiz da pasta) chamado **.env**, ou renomeie o **.env.example** para **.env**.
-2. Na tela principal do **Supabase**, abaixo de **OficinaPro-DB**, terá um **link**, com um **botão Copy**, selecione-o.
-3. Copie **Project URL** e **Publishable key**.
-4. Substitua no arquivo `.env` os dados copiados nos locais comentados: **host**, **sua senha**, **user**, **Project URL** e **Publishable key**
-
-```Bash
-DB_USER=postgres.uyujvcixprpjdcakltsb #Seu user
-DB_PASSWORD=Oficina@2026 #Sua senha
-DB_NAME=postgres
-DB_HOST=aws-1-sa-east-1.pooler.supabase.com #Sua região
-DB_PORT=5432
-
-SUPABASE_URL=https://uyujvcixprpjdcakltsb.supabase.co #Project URL
-SUPABASE_KEY=sb_publishable_DjjZWqLxHUHktdCtBzAYJQ_DR50SkMY #Publishable key
+```bash
+cp .env.example .env
 ```
 
-### 5. Criar as tabelas e ligar a API
+Em seguida, abra o arquivo `.env` e substitua o conteúdo pelas credenciais abaixo — o banco já está configurado e compartilhado, não é necessário criar uma conta no Supabase:
+
+```env
+DB_USER=postgres.hxbpvxtqkyoqbmrmjxol
+DB_PASSWORD=AnvrS5AjfjJNmlcl
+DB_NAME=postgres
+DB_HOST=aws-1-sa-east-1.pooler.supabase.com
+DB_PORT=5432
+DB_DIALECT=postgres
+
+SUPABASE_URL=https://hxbpvxtqkyoqbmrmjxol.supabase.co
+SUPABASE_KEY=sb_publishable_pCklj4RndZyWVtdhUDI3KA_S-fEVrZF
+```
+
+### 4. Criar as tabelas e ligar a API
+
 Ainda no terminal da pasta **backend**, rode os comandos a seguir:
 
-```Bash
+```bash
 npm install postgres
 npx sequelize-cli db:migrate
 npm run dev
 ```
 
-### 6. Configurar e Rodar o frontend (Visual)
-Abra um **NOVO** terminal (não feche o terminal **backend**), e selecine a pasta **frontend**:
+### 5. Configurar e Rodar o Frontend (Visual)
+
+Abra um **NOVO** terminal (não feche o terminal **backend**) e entre na pasta **frontend**:
 
 ```bash
 cd frontend
@@ -96,17 +87,15 @@ npm run dev
 
 O sistema estará disponível em:
 
-```text
+```
 http://localhost:5173
 ```
 
-### 7. Popular o Banco de Dados Automáticamente (Seed)
+### 6. Popular o Banco de Dados Automaticamente (Seed)
 
 Para facilitar os testes, criamos um script automatizado (`popularBanco.js`). Ele limpa o banco de dados de forma segura e injeta um cenário real e completo, contendo mecânicos, clientes, frota de veículos, estoque de peças e diversas Ordens de Serviço em diferentes status (para testar o fluxo do Dashboard).
 
-**Passo a passo para rodar:**
-
-1. Abra um terminal e garanta que está dentro da pasta do servidor:
+> ⚠️ **Atenção:** este script apaga todos os dados existentes e insere novos. Use apenas para testes.
 
 ```bash
 cd backend
@@ -185,8 +174,6 @@ Este software foi projetado e desenvolvido pelo time:
 
 ## 📂 Estrutura do Projeto
 
-O repositório está dividido em duas frentes principais (Monorepo), separando perfeitamente a lógica da API (Back-end) e a interface do usuário (Front-end):
-
 ```text
 📦 CRUD-OFICINA-MECANICA/
 ├── 📂 backend/                  # Servidor, Regras de Negócio e Banco de Dados (API)
@@ -217,3 +204,4 @@ O repositório está dividido em duas frentes principais (Monorepo), separando p
 │
 ├── .gitignore                   # Ignora pastas de bibliotecas (node_modules) na raiz
 └── README.md                    # Esta documentação que você está lendo
+```
