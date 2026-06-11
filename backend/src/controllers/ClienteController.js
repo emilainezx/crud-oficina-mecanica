@@ -1,4 +1,6 @@
 const { Cliente } = require("../models");
+const { Op } = require('sequelize');
+
 
 class ClienteController {
   async criar(req, res) {
@@ -21,12 +23,23 @@ class ClienteController {
   }
 
   async listar(req, res) {
-    try {
-      const clientes = await Cliente.findAll();
-      return res.status(200).json(clientes);
-    } catch (error) {
-      return res.status(500).json({ error: "Erro ao listar clientes." });
-    }
+      try {
+          const { search } = req.query;
+
+          const clientes = await Cliente.findAll({
+              where: search ? {
+                  [Op.or]: [
+                      { nome: { [Op.iLike]: `%${search}%` } },
+                      { email: { [Op.iLike]: `%${search}%` } },
+                      { telefone: { [Op.iLike]: `%${search}%` } }
+                  ]
+              } : {}
+          });
+
+          return res.status(200).json(clientes);
+      } catch (error) {
+          return res.status(500).json({ error: "Erro ao listar clientes." });
+      }
   }
 
   async buscarPorId(req, res) {

@@ -1,4 +1,5 @@
 const { OrdemServico, Veiculo, Funcionario } = require("../models");
+const { Op } = require('sequelize');
 
 class OrdemServicoController {
   async criar(req, res) {
@@ -37,21 +38,27 @@ class OrdemServicoController {
     }
   }
 
-  async listar(req, res) {
+async listar(req, res) {
     try {
-      const ordensServico = await OrdemServico.findAll({
-        include: [
-          { model: Veiculo, as: "veiculo" },
-          { model: Funcionario, as: "funcionario" },
-        ],
-      });
-      return res.status(200).json(ordensServico);
+        const { search } = req.query;
+
+        const ordensServico = await OrdemServico.findAll({
+            where: search ? {
+                status: {
+                    [Op.iLike]: `%${search}%`
+                }
+            } : {},
+            include: [
+                { model: Veiculo, as: "veiculo" },
+                { model: Funcionario, as: "funcionario" },
+            ],
+        });
+
+        return res.status(200).json(ordensServico);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Erro ao listar ordens de serviço." });
+        return res.status(500).json({ error: "Erro ao listar ordens de serviço." });
     }
-  }
+}
 
   async buscarPorId(req, res) {
     try {

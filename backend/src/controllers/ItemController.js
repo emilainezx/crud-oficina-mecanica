@@ -1,4 +1,5 @@
 const { Item } = require("../models");
+const { Op } = require('sequelize');
 
 class ItemController {
   async criar(req, res) {
@@ -27,7 +28,17 @@ class ItemController {
 
   async listar(req, res) {
     try {
-      const itens = await Item.findAll();
+      const { search } = req.query;
+
+      const itens = await Item.findAll({
+            where: search ? {
+                [Op.or]: [
+                    { nome: { [Op.iLike]: `%${search}%` } },
+                    { tipo: { [Op.iLike]: `%${search}%` } },
+                    { descricao: { [Op.iLike]: `%${search}%` } }
+                ]
+            } : {}
+        });
       return res.status(200).json(itens);
     } catch (error) {
       console.log(error);

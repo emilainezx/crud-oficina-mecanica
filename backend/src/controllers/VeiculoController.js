@@ -1,4 +1,5 @@
 const { Veiculo } = require("../models");
+const { Op } = require('sequelize');
 
 class VeiculoController {
   async criar(req, res) {
@@ -23,7 +24,17 @@ class VeiculoController {
 
   async listar(req, res) {
     try {
-      const veiculos = await Veiculo.findAll();
+      const { search } = req.query;
+
+      const veiculos = await Veiculo.findAll({
+            where: search ? {
+                [Op.or]: [
+                    { modelo: { [Op.iLike]: `%${search}%` } },
+                    { marca: { [Op.iLike]: `%${search}%` } },
+                    { placa: { [Op.iLike]: `%${search}%` } }
+                ]
+            } : {}
+        });
       res.status(200).json(veiculos);
     } catch (error) {
       res.status(500).json({ error: "Erro ao listar veículos." });
