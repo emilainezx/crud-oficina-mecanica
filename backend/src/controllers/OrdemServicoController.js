@@ -4,7 +4,6 @@ const { Op } = require("sequelize");
 class OrdemServicoController {
   async criar(req, res) {
     try {
-      // 1. Adiciona as datas aqui para o back-end receber do front-end
       const {
         veiculo_id,
         funcionario_id,
@@ -31,7 +30,6 @@ class OrdemServicoController {
         return res.status(404).json({ error: "Funcionário não encontrado." });
       }
 
-      // 2. Repassa as datas para o banco salvar no Supabase
       const novaOrdemServico = await OrdemServico.create({
         veiculo_id,
         funcionario_id,
@@ -53,19 +51,57 @@ class OrdemServicoController {
 
       const ordensServico = await OrdemServico.findAll({
         where: search
-          ? {
-              status: {
-                [Op.iLike]: `%${search}%`,
-              },
-            }
+          ? { status: { [Op.iLike]: `%${search}%` } }
           : {},
         include: [
-          { model: Veiculo, as: "veiculo" },
-          { model: Funcionario, as: "funcionario" },
+          {
+            model: Veiculo,
+            as: "veiculo",
+            ...(search
+              ? {
+                  where: {
+                    [Op.or]: [
+                      { marca: { [Op.iLike]: `%${search}%` } },
+                      { modelo: { [Op.iLike]: `%${search}%` } },
+                      { placa: { [Op.iLike]: `%${search}%` } },
+                    ],
+                  },
+                  required: false,
+                }
+              : { required: false }),
+          },
+          {
+            model: Funcionario,
+            as: "funcionario",
+            ...(search
+              ? {
+                  where: {
+                    nome: { [Op.iLike]: `%${search}%` },
+                  },
+                  required: false,
+                }
+              : { required: false }),
+          },
         ],
       });
 
-      return res.status(200).json(ordensServico);
+      const resultado = search
+        ? ordensServico.filter((os) => {
+            const termo = search.toLowerCase();
+            const bateuStatus = os.status.toLowerCase().includes(termo);
+            const bateuVeiculo =
+              os.veiculo &&
+              [os.veiculo.marca, os.veiculo.modelo, os.veiculo.placa].some(
+                (campo) => campo?.toLowerCase().includes(termo),
+              );
+            const bateuMecanico =
+              os.funcionario &&
+              os.funcionario.nome?.toLowerCase().includes(termo);
+            return bateuStatus || bateuVeiculo || bateuMecanico;
+          })
+        : ordensServico;
+
+      return res.status(200).json(resultado);
     } catch (error) {
       return res
         .status(500)
@@ -99,7 +135,6 @@ class OrdemServicoController {
     try {
       const { id } = req.params;
 
-      // 3. Adicionada as datas aqui também no momento da edição
       const {
         veiculo_id,
         funcionario_id,
@@ -109,7 +144,6 @@ class OrdemServicoController {
         valor_total,
       } = req.body;
 
-      // 4. Repassa as datas para o update no banco
       await OrdemServico.update(
         {
           veiculo_id,

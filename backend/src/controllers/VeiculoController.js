@@ -1,4 +1,4 @@
-const { Veiculo } = require("../models");
+const { Veiculo, Cliente } = require("../models");
 const { Op } = require("sequelize");
 
 class VeiculoController {
@@ -44,7 +44,22 @@ class VeiculoController {
               ],
             }
           : {},
+        include: [
+          {
+            model: Cliente,
+            as: "cliente",
+            ...(search
+              ? {
+                  where: {
+                    nome: { [Op.iLike]: `%${search}%` },
+                  },
+                  required: false,
+                }
+              : { required: false }),
+          },
+        ],
       });
+
       res.status(200).json(veiculos);
     } catch (error) {
       res.status(500).json({ error: "Erro ao listar veículos." });
