@@ -1,5 +1,5 @@
 const { Veiculo } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 class VeiculoController {
   async criar(req, res) {
@@ -7,7 +7,9 @@ class VeiculoController {
       const { cliente_id, marca, modelo, ano, placa } = req.body;
 
       if (!cliente_id || !marca || !modelo || !ano || !placa) {
-        return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+        return res
+          .status(400)
+          .json({ error: "Todos os campos são obrigatórios." });
       }
 
       const placaExistente = await Veiculo.findOne({ where: { placa } });
@@ -15,7 +17,13 @@ class VeiculoController {
         return res.status(400).json({ error: "Placa já cadastrada." });
       }
 
-      const novoVeiculo = await Veiculo.create({ cliente_id, marca, modelo, ano, placa });
+      const novoVeiculo = await Veiculo.create({
+        cliente_id,
+        marca,
+        modelo,
+        ano,
+        placa,
+      });
       res.status(201).json(novoVeiculo);
     } catch (error) {
       res.status(500).json({ error: "Erro ao criar veículo." });
@@ -27,14 +35,16 @@ class VeiculoController {
       const { search } = req.query;
 
       const veiculos = await Veiculo.findAll({
-            where: search ? {
-                [Op.or]: [
-                    { modelo: { [Op.iLike]: `%${search}%` } },
-                    { marca: { [Op.iLike]: `%${search}%` } },
-                    { placa: { [Op.iLike]: `%${search}%` } }
-                ]
-            } : {}
-        });
+        where: search
+          ? {
+              [Op.or]: [
+                { modelo: { [Op.iLike]: `%${search}%` } },
+                { marca: { [Op.iLike]: `%${search}%` } },
+                { placa: { [Op.iLike]: `%${search}%` } },
+              ],
+            }
+          : {},
+      });
       res.status(200).json(veiculos);
     } catch (error) {
       res.status(500).json({ error: "Erro ao listar veículos." });
@@ -45,7 +55,7 @@ class VeiculoController {
     try {
       const { id } = req.params;
       const veiculo = await Veiculo.findByPk(id);
-      
+
       if (!veiculo) {
         return res.status(404).json({ error: "Veículo não encontrado." });
       }
@@ -54,7 +64,7 @@ class VeiculoController {
       res.status(500).json({ error: "Erro ao buscar veículo." });
     }
   }
-  
+
   async atualizar(req, res) {
     try {
       const { id } = req.params;
@@ -62,11 +72,13 @@ class VeiculoController {
 
       const [linhasAtualizadas] = await Veiculo.update(
         { cliente_id, marca, modelo, ano, placa },
-        { where: { id } }
+        { where: { id } },
       );
 
       if (linhasAtualizadas === 0) {
-        return res.status(404).json({ error: "Veículo não encontrado para atualização." });
+        return res
+          .status(404)
+          .json({ error: "Veículo não encontrado para atualização." });
       }
 
       res.status(200).json({ message: "Veículo atualizado com sucesso." });
@@ -79,9 +91,11 @@ class VeiculoController {
     try {
       const { id } = req.params;
       const linhasDeletadas = await Veiculo.destroy({ where: { id } });
-      
+
       if (linhasDeletadas === 0) {
-        return res.status(404).json({ error: "Veículo não encontrado para exclusão." });
+        return res
+          .status(404)
+          .json({ error: "Veículo não encontrado para exclusão." });
       }
 
       res.status(200).json({ message: "Veículo deletado com sucesso." });

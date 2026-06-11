@@ -1,5 +1,5 @@
 const { Funcionario } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 class FuncionarioController {
   async criar(req, res) {
@@ -41,15 +41,17 @@ class FuncionarioController {
       const { search } = req.query;
 
       const funcionarios = await Funcionario.findAll({
-            where: search ? {
-                [Op.or]: [
-                    { nome: { [Op.iLike]: `%${search}%` } },
-                    { cpf: { [Op.iLike]: `%${search}%` } },
-                    { cargo: { [Op.iLike]: `%${search}%` } },
-                    { telefone: { [Op.iLike]: `%${search}%` } }
-                ]
-            } : {}
-        });
+        where: search
+          ? {
+              [Op.or]: [
+                { nome: { [Op.iLike]: `%${search}%` } },
+                { cpf: { [Op.iLike]: `%${search}%` } },
+                { cargo: { [Op.iLike]: `%${search}%` } },
+                { telefone: { [Op.iLike]: `%${search}%` } },
+              ],
+            }
+          : {},
+      });
       return res.status(200).json(funcionarios);
     } catch (error) {
       console.log(error);

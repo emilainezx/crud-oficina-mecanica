@@ -1,5 +1,5 @@
 const { Item } = require("../models");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 class ItemController {
   async criar(req, res) {
@@ -17,7 +17,7 @@ class ItemController {
         descricao,
         preco,
         tipo,
-        quantidade
+        quantidade,
       });
 
       return res.status(201).json(novoItem);
@@ -31,14 +31,16 @@ class ItemController {
       const { search } = req.query;
 
       const itens = await Item.findAll({
-            where: search ? {
-                [Op.or]: [
-                    { nome: { [Op.iLike]: `%${search}%` } },
-                    { tipo: { [Op.iLike]: `%${search}%` } },
-                    { descricao: { [Op.iLike]: `%${search}%` } }
-                ]
-            } : {}
-        });
+        where: search
+          ? {
+              [Op.or]: [
+                { nome: { [Op.iLike]: `%${search}%` } },
+                { tipo: { [Op.iLike]: `%${search}%` } },
+                { descricao: { [Op.iLike]: `%${search}%` } },
+              ],
+            }
+          : {},
+      });
       return res.status(200).json(itens);
     } catch (error) {
       console.log(error);
@@ -67,7 +69,10 @@ class ItemController {
       const { id } = req.params;
       const { nome, descricao, preco, tipo, quantidade } = req.body;
 
-      await Item.update({ nome, descricao, preco, tipo, quantidade }, { where: { id } });
+      await Item.update(
+        { nome, descricao, preco, tipo, quantidade },
+        { where: { id } },
+      );
 
       return res.status(200).json({ message: "Item atualizado com sucesso." });
     } catch (error) {
