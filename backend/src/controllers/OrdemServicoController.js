@@ -1,13 +1,22 @@
 const { OrdemServico, Veiculo, Funcionario } = require("../models");
+const { Op } = require("sequelize");
 
 class OrdemServicoController {
   async criar(req, res) {
     try {
-      // 1. Adiciona as datas aqui para o back-end receber do front-end
-      const { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total } = req.body;
+      const {
+        veiculo_id,
+        funcionario_id,
+        status,
+        data_abertura,
+        data_conclusao,
+        valor_total,
+      } = req.body;
 
       if (!veiculo_id || !funcionario_id || !status || !valor_total) {
-        return res.status(400).json({ error: "Preencha todos os campos obrigatórios." });
+        return res
+          .status(400)
+          .json({ error: "Preencha todos os campos obrigatórios." });
       }
 
       const veiculoExistente = await Veiculo.findByPk(veiculo_id);
@@ -21,12 +30,11 @@ class OrdemServicoController {
         return res.status(404).json({ error: "Funcionário não encontrado." });
       }
 
-      // 2. Repassa as datas para o banco salvar no Supabase
       const novaOrdemServico = await OrdemServico.create({
         veiculo_id,
         funcionario_id,
         status,
-        data_abertura, 
+        data_abertura,
         data_conclusao,
         valor_total,
       });
@@ -39,13 +47,39 @@ class OrdemServicoController {
 
   async listar(req, res) {
     try {
-      const ordensServico = await OrdemServico.findAll({
+      const { search } = req.query;
+
+      const todas = await OrdemServico.findAll({
         include: [
-          { model: Veiculo, as: "veiculo" },
-          { model: Funcionario, as: "funcionario" },
+          { model: Veiculo, as: "veiculo", required: false },
+          { model: Funcionario, as: "funcionario", required: false },
         ],
       });
-      return res.status(200).json(ordensServico);
+
+      if (!search) {
+        return res.status(200).json(todas);
+      }
+
+      const palavras = search
+        .toLowerCase()
+        .trim()
+        .replace(/[()[\]{}/\\]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+      const resultado = todas.filter((os) => {
+        const campos = [
+          os.status,
+          os.veiculo ? `${os.veiculo.marca} ${os.veiculo.modelo} ${os.veiculo.placa}` : null,
+          os.funcionario?.nome,
+        ].filter(Boolean);
+
+        return campos.some((campo) =>
+          palavras.every((p) => campo.toLowerCase().includes(p))
+        );
+      });
+
+      return res.status(200).json(resultado);
     } catch (error) {
       return res
         .status(500)
@@ -78,13 +112,25 @@ class OrdemServicoController {
   async atualizar(req, res) {
     try {
       const { id } = req.params;
-      
-      // 3. Adicionada as datas aqui também no momento da edição
-      const { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total } = req.body;
 
-      // 4. Repassa as datas para o update no banco
+      const {
+        veiculo_id,
+        funcionario_id,
+        status,
+        data_abertura,
+        data_conclusao,
+        valor_total,
+      } = req.body;
+
       await OrdemServico.update(
-        { veiculo_id, funcionario_id, status, data_abertura, data_conclusao, valor_total },
+        {
+          veiculo_id,
+          funcionario_id,
+          status,
+          data_abertura,
+          data_conclusao,
+          valor_total,
+        },
         { where: { id } },
       );
       res

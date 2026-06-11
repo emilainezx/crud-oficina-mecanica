@@ -1,16 +1,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { listarClientes, criarCliente, atualizarCliente, deletarCliente } from '../services/clienteService.js'
-import { PhUserPlus, PhPencil, PhTrash, PhX } from "@phosphor-icons/vue"
+import { PhUserPlus, PhPencil, PhTrash, PhX, PhMagnifyingGlass } from "@phosphor-icons/vue"
 
 const clientes = ref([])
 const isModalOpen = ref(false)
 const idEdicao = ref(null)
+const termoBusca = ref("")
 const formData = ref({ nome: "", telefone: "", email: "" })
 
 async function carregarClientes() {
   try {
-    const response = await listarClientes()
+    const response = await listarClientes(termoBusca.value)
     clientes.value = response.data
   } catch (error) {
     console.error("Erro ao buscar clientes:", error)
@@ -31,26 +32,20 @@ function abrirModalEdicao(cliente) {
   isModalOpen.value = true
 }
 
-// ----------------- MÁSCARAS E VALIDAÇÕES -----------------
 function mascaraNome(event) {
   let val = event.target.value;
-  // Remove tudo que não for letra (incluindo acentos) ou espaço
   val = val.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
-  // Padroniza primeira letra maiúscula de cada palavra
   val = val.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
   formData.value.nome = val;
 }
 
 function mascaraTelefone(event) {
   let val = event.target.value;
-  // Remove tudo que não for número e limita a 11 dígitos
   val = val.replace(/\D/g, '').substring(0, 11);
-  // Aplica a máscara (XX) 9XXXX-XXXX
   if (val.length > 2) val = '(' + val.substring(0, 2) + ') ' + val.substring(2);
   if (val.length > 10) val = val.substring(0, 10) + '-' + val.substring(10);
   formData.value.telefone = val;
 }
-// ---------------------------------------------------------
 
 async function handleSalvar() {
   try {
@@ -68,7 +63,7 @@ async function handleSalvar() {
 }
 
 async function handleDeletar(id) {
-  if (confirm("Atenção: Tem certeza que deseja excluir este cliente? Essa ação não pode ser desfeita.")) {
+  if (confirm("Atenção: Tem certeza que deseja excluir este cliente?")) {
     try {
       await deletarCliente(id)
       await carregarClientes()
@@ -93,6 +88,17 @@ async function handleDeletar(id) {
       </button>
     </div>
 
+    <div class="mb-4 relative">
+      <PhMagnifyingGlass :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <input
+        v-model="termoBusca"
+        @input="carregarClientes"
+        type="text"
+        placeholder="Buscar por nome, email ou telefone..."
+        class="w-full border border-slate-300 rounded-lg py-2 pl-9 pr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+      />
+    </div>
+
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
@@ -106,7 +112,7 @@ async function handleDeletar(id) {
         <tbody class="divide-y divide-slate-200">
           <tr v-if="clientes.length === 0">
             <td colspan="4" class="p-8 text-center text-slate-500">
-              Nenhum cliente cadastrado no banco de dados ainda.
+              Nenhum cliente encontrado.
             </td>
           </tr>
           <tr v-else v-for="cliente in clientes" :key="cliente.id" class="hover:bg-slate-50 transition-colors">
@@ -114,18 +120,10 @@ async function handleDeletar(id) {
             <td class="p-4 text-slate-600">{{ cliente.telefone }}</td>
             <td class="p-4 text-slate-600">{{ cliente.email }}</td>
             <td class="p-4 flex justify-center gap-3">
-              <button 
-                @click="abrirModalEdicao(cliente)"
-                class="text-blue-500 cursor-pointer hover:text-blue-700 p-1 bg-blue-50 rounded"
-                title="Editar"
-              >
+              <button @click="abrirModalEdicao(cliente)" class="text-blue-500 cursor-pointer hover:text-blue-700 p-1 bg-blue-50 rounded" title="Editar">
                 <PhPencil :size="20" />
               </button>
-              <button 
-                @click="handleDeletar(cliente.id)"
-                class="text-red-500 cursor-pointer hover:text-red-700 p-1 bg-red-50 rounded"
-                title="Excluir"
-              >
+              <button @click="handleDeletar(cliente.id)" class="text-red-500 cursor-pointer hover:text-red-700 p-1 bg-red-50 rounded" title="Excluir">
                 <PhTrash :size="20" />
               </button>
             </td>
@@ -144,57 +142,22 @@ async function handleDeletar(id) {
             <PhX :size="24" />
           </button>
         </div>
-        
         <form @submit.prevent="handleSalvar" class="p-5 space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
-            <input 
-              type="text" 
-              required
-              v-model="formData.nome"
-              @input="mascaraNome"
-              class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: João da Silva"
-            />
+            <input type="text" required v-model="formData.nome" @input="mascaraNome" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: João da Silva" />
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
-            <input 
-              type="text" 
-              required
-              v-model="formData.telefone"
-              @input="mascaraTelefone"
-              class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: (81) 99999-9999"
-            />
+            <input type="text" required v-model="formData.telefone" @input="mascaraTelefone" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: (81) 99999-9999" />
           </div>
-
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-            <input 
-              type="email" 
-              required
-              v-model="formData.email"
-              class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: joao@email.com"
-            />
+            <input type="email" required v-model="formData.email" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: joao@email.com" />
           </div>
-
           <div class="pt-4 flex justify-end gap-3">
-            <button 
-              type="button" 
-              @click="isModalOpen = false"
-              class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors cursor-pointer"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="submit"
-              class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium shadow-md transition-colors cursor-pointer"
-            >
-              {{ idEdicao ? "Atualizar" : "Salvar" }}
-            </button>
+            <button type="button" @click="isModalOpen = false" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors cursor-pointer">Cancelar</button>
+            <button type="submit" class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium shadow-md transition-colors cursor-pointer">{{ idEdicao ? "Atualizar" : "Salvar" }}</button>
           </div>
         </form>
       </div>
