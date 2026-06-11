@@ -1,4 +1,5 @@
 const { Funcionario } = require("../models");
+const { Op } = require("sequelize");
 
 class FuncionarioController {
   async criar(req, res) {
@@ -37,7 +38,20 @@ class FuncionarioController {
 
   async listar(req, res) {
     try {
-      const funcionarios = await Funcionario.findAll();
+      const termo = req.query.search?.trim();
+
+      const funcionarios = await Funcionario.findAll({
+        where: termo
+          ? {
+              [Op.or]: [
+                { nome: { [Op.iLike]: `%${termo}%` } },
+                { cpf: { [Op.iLike]: `%${termo}%` } },
+                { cargo: { [Op.iLike]: `%${termo}%` } },
+                { telefone: { [Op.iLike]: `%${termo}%` } },
+              ],
+            }
+          : {},
+      });
       return res.status(200).json(funcionarios);
     } catch (error) {
       console.log(error);
