@@ -28,15 +28,15 @@ class ItemController {
 
   async listar(req, res) {
     try {
-      const { search } = req.query;
+      const termo = req.query.search?.trim();
 
       const itens = await Item.findAll({
-        where: search
+        where: termo
           ? {
               [Op.or]: [
-                { nome: { [Op.iLike]: `%${search}%` } },
-                { tipo: { [Op.iLike]: `%${search}%` } },
-                { descricao: { [Op.iLike]: `%${search}%` } },
+                { nome: { [Op.iLike]: `%${termo}%` } },
+                { tipo: { [Op.iLike]: `%${termo}%` } },
+                { descricao: { [Op.iLike]: `%${termo}%` } },
               ],
             }
           : {},
@@ -80,6 +80,7 @@ class ItemController {
       return res.status(500).json({ error: "Erro ao atualizar item." });
     }
   }
+
   async deletar(req, res) {
     try {
       const { id } = req.params;

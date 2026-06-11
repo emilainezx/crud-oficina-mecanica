@@ -27,15 +27,15 @@ class ClienteController {
 
   async listar(req, res) {
     try {
-      const { search } = req.query;
+      const termo = req.query.search?.trim();
 
       const clientes = await Cliente.findAll({
-        where: search
+        where: termo
           ? {
               [Op.or]: [
-                { nome: { [Op.iLike]: `%${search}%` } },
-                { email: { [Op.iLike]: `%${search}%` } },
-                { telefone: { [Op.iLike]: `%${search}%` } },
+                { nome: { [Op.iLike]: `%${termo}%` } },
+                { email: { [Op.iLike]: `%${termo}%` } },
+                { telefone: { [Op.iLike]: `%${termo}%` } },
               ],
             }
           : {},
@@ -66,7 +66,6 @@ class ClienteController {
       const { id } = req.params;
       const { nome, telefone, email } = req.body;
 
-      // O update retorna um array, pegamos o primeiro item (linhas afetadas)
       const [linhasAtualizadas] = await Cliente.update(
         { nome, telefone, email },
         { where: { id } },
@@ -90,7 +89,6 @@ class ClienteController {
     try {
       const { id } = req.params;
 
-      // O destroy retorna o número de linhas deletadas
       const linhasDeletadas = await Cliente.destroy({ where: { id } });
 
       if (linhasDeletadas === 0) {

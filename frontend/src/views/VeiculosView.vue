@@ -109,7 +109,7 @@ function getNomeCliente(id) {
         v-model="termoBusca"
         @input="carregarDados"
         type="text"
-        placeholder="Buscar por marca, modelo ou placa..."
+        placeholder="Buscar por marca, modelo, placa ou proprietário..."
         class="w-full border border-slate-300 rounded-lg py-2 pl-9 pr-4 focus:ring-2 focus:ring-slate-500 focus:outline-none"
       />
     </div>

@@ -20,7 +20,6 @@ const formData = ref({
   veiculo_id: "", funcionario_id: "", status: "Aberta", data_abertura: "", data_conclusao: "", valor_total: ""
 })
 
-// Carrega veículos e funcionários uma vez; ordens são recarregadas a cada busca
 async function carregarVeiculosEFuncionarios() {
   const [resVeiculos, resFuncionarios] = await Promise.all([
     listarVeiculos(),
@@ -166,7 +165,7 @@ function getStatusColor(status) {
         v-model="termoBusca"
         @input="carregarOrdens"
         type="text"
-        placeholder="Buscar por status (Ex: Aberta, Concluída, Em Andamento...)"
+        placeholder="Buscar por veículo, mecânico ou status..."
         class="w-full border border-slate-300 rounded-lg py-2 pl-9 pr-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       />
     </div>

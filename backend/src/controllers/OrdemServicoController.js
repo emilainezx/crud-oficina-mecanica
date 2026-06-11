@@ -49,57 +49,35 @@ class OrdemServicoController {
     try {
       const { search } = req.query;
 
-      const ordensServico = await OrdemServico.findAll({
-        where: search
-          ? { status: { [Op.iLike]: `%${search}%` } }
-          : {},
+      const todas = await OrdemServico.findAll({
         include: [
-          {
-            model: Veiculo,
-            as: "veiculo",
-            ...(search
-              ? {
-                  where: {
-                    [Op.or]: [
-                      { marca: { [Op.iLike]: `%${search}%` } },
-                      { modelo: { [Op.iLike]: `%${search}%` } },
-                      { placa: { [Op.iLike]: `%${search}%` } },
-                    ],
-                  },
-                  required: false,
-                }
-              : { required: false }),
-          },
-          {
-            model: Funcionario,
-            as: "funcionario",
-            ...(search
-              ? {
-                  where: {
-                    nome: { [Op.iLike]: `%${search}%` },
-                  },
-                  required: false,
-                }
-              : { required: false }),
-          },
+          { model: Veiculo, as: "veiculo", required: false },
+          { model: Funcionario, as: "funcionario", required: false },
         ],
       });
 
-      const resultado = search
-        ? ordensServico.filter((os) => {
-            const termo = search.toLowerCase();
-            const bateuStatus = os.status.toLowerCase().includes(termo);
-            const bateuVeiculo =
-              os.veiculo &&
-              [os.veiculo.marca, os.veiculo.modelo, os.veiculo.placa].some(
-                (campo) => campo?.toLowerCase().includes(termo),
-              );
-            const bateuMecanico =
-              os.funcionario &&
-              os.funcionario.nome?.toLowerCase().includes(termo);
-            return bateuStatus || bateuVeiculo || bateuMecanico;
-          })
-        : ordensServico;
+      if (!search) {
+        return res.status(200).json(todas);
+      }
+
+      const palavras = search
+        .toLowerCase()
+        .trim()
+        .replace(/[()[\]{}/\\]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+      const resultado = todas.filter((os) => {
+        const campos = [
+          os.status,
+          os.veiculo ? `${os.veiculo.marca} ${os.veiculo.modelo} ${os.veiculo.placa}` : null,
+          os.funcionario?.nome,
+        ].filter(Boolean);
+
+        return campos.some((campo) =>
+          palavras.every((p) => campo.toLowerCase().includes(p))
+        );
+      });
 
       return res.status(200).json(resultado);
     } catch (error) {

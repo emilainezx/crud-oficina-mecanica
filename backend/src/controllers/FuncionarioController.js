@@ -38,16 +38,16 @@ class FuncionarioController {
 
   async listar(req, res) {
     try {
-      const { search } = req.query;
+      const termo = req.query.search?.trim();
 
       const funcionarios = await Funcionario.findAll({
-        where: search
+        where: termo
           ? {
               [Op.or]: [
-                { nome: { [Op.iLike]: `%${search}%` } },
-                { cpf: { [Op.iLike]: `%${search}%` } },
-                { cargo: { [Op.iLike]: `%${search}%` } },
-                { telefone: { [Op.iLike]: `%${search}%` } },
+                { nome: { [Op.iLike]: `%${termo}%` } },
+                { cpf: { [Op.iLike]: `%${termo}%` } },
+                { cargo: { [Op.iLike]: `%${termo}%` } },
+                { telefone: { [Op.iLike]: `%${termo}%` } },
               ],
             }
           : {},

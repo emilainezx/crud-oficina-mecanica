@@ -34,33 +34,33 @@ class VeiculoController {
     try {
       const { search } = req.query;
 
-      const veiculos = await Veiculo.findAll({
-        where: search
-          ? {
-              [Op.or]: [
-                { modelo: { [Op.iLike]: `%${search}%` } },
-                { marca: { [Op.iLike]: `%${search}%` } },
-                { placa: { [Op.iLike]: `%${search}%` } },
-              ],
-            }
-          : {},
-        include: [
-          {
-            model: Cliente,
-            as: "cliente",
-            ...(search
-              ? {
-                  where: {
-                    nome: { [Op.iLike]: `%${search}%` },
-                  },
-                  required: false,
-                }
-              : { required: false }),
-          },
-        ],
+      const todos = await Veiculo.findAll({
+        include: [{ model: Cliente, as: "cliente", required: false }],
       });
 
-      res.status(200).json(veiculos);
+      if (!search) {
+        return res.status(200).json(todos);
+      }
+
+      const palavras = search
+        .toLowerCase()
+        .trim()
+        .replace(/[()[\]{}/\\]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+      const filtrados = todos.filter((v) => {
+        const campos = [
+          `${v.marca} ${v.modelo} ${v.placa} ${v.ano}`,
+          v.cliente?.nome,
+        ].filter(Boolean);
+
+        return campos.some((campo) =>
+          palavras.every((p) => campo.toLowerCase().includes(p))
+        );
+      });
+
+      res.status(200).json(filtrados);
     } catch (error) {
       res.status(500).json({ error: "Erro ao listar veículos." });
     }
